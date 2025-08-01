@@ -1,7 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-
-// In-memory storage for names
-const names: { firstName: string; lastName: string }[] = [];
+import { addName, getAllNames } from '@/lib/database';
 
 export async function POST(request: NextRequest) {
   try {
@@ -9,14 +7,24 @@ export async function POST(request: NextRequest) {
     if (!firstName || !lastName) {
       return NextResponse.json({ error: 'First and last name required' }, { status: 400 });
     }
-    names.push({ firstName, lastName });
-    return NextResponse.json({ message: 'Name added successfully' }, { status: 201 });
-  } catch {
-    return NextResponse.json({ error: 'Invalid request' }, { status: 400 });
+    
+    const newName = await addName(firstName, lastName);
+    return NextResponse.json({ 
+      message: 'Name added successfully',
+      name: newName 
+    }, { status: 201 });
+  } catch (error) {
+    console.error('Database error:', error);
+    return NextResponse.json({ error: 'Failed to add name' }, { status: 500 });
   }
 }
 
 export async function GET() {
-  // Return the list of all submitted names
-  return NextResponse.json(names);
+  try {
+    const names = await getAllNames();
+    return NextResponse.json(names);
+  } catch (error) {
+    console.error('Database error:', error);
+    return NextResponse.json({ error: 'Failed to fetch names' }, { status: 500 });
+  }
 }
