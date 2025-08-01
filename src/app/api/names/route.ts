@@ -11,11 +11,12 @@ export async function POST(request: NextRequest) {
     }
     names.push({ firstName, lastName });
     return NextResponse.json({ message: 'Name added successfully' }, { status: 201 });
-  } catch (error) {
+  } catch {
     return NextResponse.json({ error: 'Invalid request' }, { status: 400 });
   }
 }
 
 export async function GET() {
+  // Return the list of all submitted names
   return NextResponse.json(names);
 }
